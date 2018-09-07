@@ -2,13 +2,14 @@ from time import time
 
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.urls import resolve
-#from django.urls.base import resolve
+
+# from django.urls.base import resolve
 from django.http import Http404, HttpResponseRedirect
 
 from wagtail.core.blocks.stream_block import StreamValue
 
 
-def get_unique_id(prefix='', suffix=''):
+def get_unique_id(prefix="", suffix=""):
     index = hex(int(time() * 10000000))[2:]
     return prefix + str(index) + suffix
 
@@ -17,17 +18,14 @@ def get_unique_id(prefix='', suffix=''):
 # Javascript side in error-messages-config.js
 
 ERROR_MESSAGES = {
-    'CHECKBOX_ERRORS': {
-        'required': 'Please select at least one of the "%s" options.'
-    },
-    'DATE_ERRORS': {
-        'invalid': 'You have entered an invalid date.',
-    }
+    "CHECKBOX_ERRORS": {"required": 'Please select at least one of the "%s" options.'},
+    "DATE_ERRORS": {"invalid": "You have entered an invalid date."},
 }
 
 
 def instanceOfBrowseOrFilterablePages(page):
     from ..models import BrowsePage, BrowseFilterablePage
+
     pages = (BrowsePage, BrowseFilterablePage)
     return isinstance(page, pages)
 
@@ -57,23 +55,26 @@ def get_secondary_nav_items(request, current_page):
 
     # Handle the Newsroom page specially.
     # TODO: Remove this ASAP once Press Resources gets its own Wagtail page
-    if page.slug == 'newsroom':
-        return [
-            {
-                'title': page.title,
-                'slug': page.slug,
-                'url': page.relative_url(request.site),
-                'children': [
-                    {
-                        'title': 'Press Resources',
-                        'slug': 'press-resources',
-                        'url': '/newsroom/press-resources/',
-                    }
-                ],
-                'active': True,
-                'expanded': True,
-            }
-        ], True
+    if page.slug == "newsroom":
+        return (
+            [
+                {
+                    "title": page.title,
+                    "slug": page.slug,
+                    "url": page.relative_url(request.site),
+                    "children": [
+                        {
+                            "title": "Press Resources",
+                            "slug": "press-resources",
+                            "url": "/newsroom/press-resources/",
+                        }
+                    ],
+                    "active": True,
+                    "expanded": True,
+                }
+            ],
+            True,
+        )
     # END TODO
 
     if page.secondary_nav_exclude_sibling_pages:
@@ -81,7 +82,7 @@ def get_secondary_nav_items(request, current_page):
     else:
         pages = filter(
             lambda p: instanceOfBrowseOrFilterablePages(p.specific),
-            page.get_appropriate_siblings()
+            page.get_appropriate_siblings(),
         )
 
     nav_items = []
@@ -94,21 +95,18 @@ def get_secondary_nav_items(request, current_page):
         item_selected = current_page.pk == sibling.pk
 
         item = {
-            'title': sibling.title,
-            'slug': sibling.slug,
-            'url': sibling.relative_url(request.site),
-            'children': [],
-            'active': item_selected,
-            'expanded': item_selected,
+            "title": sibling.title,
+            "slug": sibling.slug,
+            "url": sibling.relative_url(request.site),
+            "children": [],
+            "active": item_selected,
+            "expanded": item_selected,
         }
 
         if page.id == sibling.id:
             visible_children = filter(
-                lambda c: (
-                    instanceOfBrowseOrFilterablePages(c) and
-                    (c.live)
-                ),
-                sibling.get_children().specific()
+                lambda c: (instanceOfBrowseOrFilterablePages(c) and (c.live)),
+                sibling.get_children().specific(),
             )
             if len(visible_children):
                 has_children = True
@@ -116,14 +114,16 @@ def get_secondary_nav_items(request, current_page):
                     child_selected = current_page.pk == child.pk
 
                     if child_selected:
-                        item['expanded'] = True
+                        item["expanded"] = True
 
-                    item['children'].append({
-                        'title': child.title,
-                        'slug': child.slug,
-                        'url': child.relative_url(request.site),
-                        'active': child_selected,
-                    })
+                    item["children"].append(
+                        {
+                            "title": child.title,
+                            "slug": child.slug,
+                            "url": child.relative_url(request.site),
+                            "active": child_selected,
+                        }
+                    )
 
         nav_items.append(item)
 
@@ -152,7 +152,7 @@ def get_secondary_nav_items(request, current_page):
 def valid_destination_for_request(request, url):
 
     view, args, kwargs = resolve(url)
-    kwargs['request'] = request
+    kwargs["request"] = request
     try:
         response = view(*args, **kwargs)
     except (Http404, TypeError):
@@ -161,19 +161,19 @@ def valid_destination_for_request(request, url):
     if isinstance(response, HttpResponseRedirect):
         # this indicates a permissions problem
         # (there may be a better way)
-        if REDIRECT_FIELD_NAME + '=' in response.url:
+        if REDIRECT_FIELD_NAME + "=" in response.url:
             return False
 
     return True
 
 
 def all_valid_destinations_for_request(request):
-    possible_destinations = (
-        ('Wagtail', '/admin/'),
-        ('Django admin', '/django-admin/')
-    )
-    valid_destinations = [pair for pair in possible_destinations
-                          if valid_destination_for_request(request, pair[1])]
+    possible_destinations = (("Wagtail", "/admin/"), ("Django admin", "/django-admin/"))
+    valid_destinations = [
+        pair
+        for pair in possible_destinations
+        if valid_destination_for_request(request, pair[1])
+    ]
 
     return valid_destinations
 
@@ -195,10 +195,22 @@ def extended_strftime(dt, format):
     _m for custom month abbreviations,
     _d for day values without leading zeros.
     """
-    _MONTH_ABBREVIATIONS = [None, 'Jan.', 'Feb.', 'Mar.', 'Apr.',
-                            'May', 'Jun.', 'Jul.', 'Aug.',
-                            'Sept.', 'Oct.', 'Nov.', 'Dec.']
+    _MONTH_ABBREVIATIONS = [
+        None,
+        "Jan.",
+        "Feb.",
+        "Mar.",
+        "Apr.",
+        "May",
+        "Jun.",
+        "Jul.",
+        "Aug.",
+        "Sept.",
+        "Oct.",
+        "Nov.",
+        "Dec.",
+    ]
 
-    format = format.replace('%_d', dt.strftime('%d').lstrip('0'))
-    format = format.replace('%_m', _MONTH_ABBREVIATIONS[dt.month])
+    format = format.replace("%_d", dt.strftime("%d").lstrip("0"))
+    format = format.replace("%_m", _MONTH_ABBREVIATIONS[dt.month])
     return dt.strftime(format)
