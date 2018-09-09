@@ -1,0 +1,124 @@
+{# ==========================================================================
+
+   related_posts.render()
+
+   ==========================================================================
+
+   Description:
+
+   Creates related posts markup when given:
+
+   posts:                    TODO: Add data type and description.
+
+   posts.iteritems():        TODO: Add data type and description.
+
+   block:                    TODO: Add data type and description.
+
+   block.value:              TODO: Add data type and description.
+
+   block.value.header_title: TODO: Add data type and description.
+
+   block.value.show_heading: TODO: Add data type and description.
+
+   is_half_width:            A Boolean indicating whether the posts
+                             should be at half width.
+                             Defaults to False.
+
+   hide_header_slug:         A Boolean indicating whether
+                             the header should be hidden.
+                             Defaults to False.
+
+   ========================================================================== #}
+
+{% macro render(posts, block, is_half_width=false, hide_header_slug=false) %}
+    {% import 'macros/category-icon.html' as category_icon %}
+    <div class="m-related-posts
+                {{'m-related-posts__half-width'
+                  if is_half_width else ''}}">
+        {% if not hide_header_slug %}
+            <header class="m-slug-header">
+                <h2 class="a-heading">
+                    {{ block.value.header_title }}
+                </h2>
+            </header>
+        {% endif %}
+        {% for post_type, post_type_list in posts.iteritems() %}
+            {% set title, icon = (post_type, category_icon.render(post_type)) or ("Blog", category_icon.render('blog')) %}
+            <div class="m-related-posts_list-container">
+                {% if block.value.show_heading %}
+                    <h3 class="h4">
+                        {{ icon }} {{ title }}
+                    </h3>
+                {% endif %}
+                {{ _related_posts_list(post_type_list, block.value.limit) }}
+            </div>
+        {% endfor %}
+        {{ _view_more() }}
+    </div>
+{% endmacro %}
+
+
+{# ==========================================================================
+
+   _related_posts_list()
+
+   ==========================================================================
+
+   Description:
+
+   Creates related posts markup when given:
+
+   posts: A list of dictionaries containing related posts.
+
+   limit: Number at which to limit displaying posts.
+
+   ========================================================================== #}
+
+{% macro _related_posts_list(posts, limit) %}
+    {% set limit = limit | int if posts | length >= limit | int else posts | length %}
+    <ul class="m-related-posts_list
+               m-list
+               m-list__unstyled
+               m-list__spaced">
+        {% for i in range(limit) %}
+            {% set post_url = posts[i].url or '' %}
+            <li class="m-list_item">
+                <h3 class="h4 u-mb5">
+                    <a class="m-list_link"
+                       href="{{ post_url or posts[i].permalink }}">
+                        {{ posts[i].title | safe }}
+                    </a>
+                </h3>
+                {% if posts[i].text %}
+                <p>
+                    {{ posts[i].text | safe }}
+                </p>
+                {% endif %}
+                <p class="a-date">
+                    {% import 'macros/time.html' as time %}
+                    {% set date = posts[i].start_dt
+                                  or posts[i].date_published
+                                  or posts[i].latest_revision_created_at
+                                  or posts[i].date %}
+                    {{ time.render(date, {'date':true}) }}
+                </p>
+            </li>
+        {% endfor %}
+    </ul>
+
+{% endmacro %}
+
+{# ==========================================================================
+
+   _view_more()
+
+   ========================================================================== #}
+
+{% macro _view_more() %}
+    <a class="a-link a-link__jump"
+       href="{{ page.generate_view_more_url(request) }}">
+        <span class="a-link_text">
+            {{ _('View more') }}
+        </span>
+    </a>
+{% endmacro %}

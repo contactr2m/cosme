@@ -3,13 +3,17 @@ Base settings to build other settings files upon.
 """
 
 import environ
+import os
 
 # (cosme/config/settings/base.py - 3 = cosme/)
 ROOT_DIR = environ.Path(__file__) - 3
 APPS_DIR = ROOT_DIR.path("cosme")
-V1_TEMPLATE_ROOT = APPS_DIR.path("jinja/v1/")
+V1_TEMPLATE_ROOT = APPS_DIR.path("jinja2/v1/")
 
 env = environ.Env()
+
+# Deploy environment
+DEPLOY_ENVIRONMENT = os.getenv("DEPLOY_ENVIRONMENT")
 
 READ_DOT_ENV_FILE = env.bool("DJANGO_READ_DOT_ENV_FILE", default=False)
 if READ_DOT_ENV_FILE:
@@ -157,7 +161,10 @@ STATIC_ROOT = str(ROOT_DIR("staticfiles"))
 # https://docs.djangoproject.com/en/dev/ref/settings/#static-url
 STATIC_URL = "/static/"
 # https://docs.djangoproject.com/en/dev/ref/contrib/staticfiles/#std:setting-STATICFILES_DIRS
-STATICFILES_DIRS = [str(APPS_DIR.path("static"))]
+STATICFILES_DIRS = [
+    str(APPS_DIR.path("static")),
+    str(APPS_DIR.path("templates/wagtailadmin")),
+]
 # https://docs.djangoproject.com/en/dev/ref/contrib/staticfiles/#staticfiles-finders
 STATICFILES_FINDERS = [
     "django.contrib.staticfiles.finders.FileSystemFinder",
@@ -188,10 +195,10 @@ TEMPLATES = [
             "debug": DEBUG,
             # https://docs.djangoproject.com/en/dev/ref/settings/#template-loaders
             # https://docs.djangoproject.com/en/dev/ref/templates/api/#loader-types
-            "loaders": [
-                "django.template.loaders.filesystem.Loader",
-                "django.template.loaders.app_directories.Loader",
-            ],
+            # "loaders": [
+            #     "django.template.loaders.filesystem.Loader",
+            #     "django.template.loaders.app_directories.Loader",
+            # ],
             # https://docs.djangoproject.com/en/dev/ref/settings/#template-context-processors
             "context_processors": [
                 "django.template.context_processors.debug",
@@ -225,7 +232,7 @@ TEMPLATES = [
                 "wagtail.core.jinja2tags.core",
                 "wagtail.admin.jinja2tags.userbar",
                 "wagtail.images.jinja2tags.images",
-                "core.jinja2tags.filters",
+                "cosme.v1.jinja2tags.core_extension.filters",
                 "cosme.v1.jinja2tags.datetimes_extension",
                 "cosme.v1.jinja2tags.fragment_cache_extension",
                 "cosme.v1.jinja2tags.v1_extension",
@@ -281,3 +288,82 @@ STATICFILES_FINDERS += ["compressor.finders.CompressorFinder"]
 # ------------------------------------------------------------------------------
 
 WAGTAIL_SITE_NAME = "COSME"
+WAGTAILIMAGES_IMAGE_MODEL = "v1.COSMEImage"
+TAGGIT_CASE_INSENSITIVE = True
+
+
+# We want the ability to serve the latest drafts of some pages on beta.
+# This value is read by v1.wagtail_hooks.
+SERVE_LATEST_DRAFT_PAGES = []
+
+# To expose a previously-published page's latest draft version on beta,
+# add its primary key to the list below.
+if DEPLOY_ENVIRONMENT == "beta":
+    SERVE_LATEST_DRAFT_PAGES = []
+
+# Feature flags
+# All feature flags must be listed here with a dict of any hard-coded
+# conditions or an empty dict. If the conditions dict is empty the flag will
+# only be enabled if database conditions are added.
+FLAGS = {
+    # Ask COSME search spelling correction support
+    # When enabled, spelling suggestions will appear in Ask COSME search and
+    # will be used when the given search term provides no results.
+    "ASK_SEARCH_TYPOS": {},
+    # Beta banner, seen on beta.cosme.in
+    # When enabled, a banner appears across the top of the site proclaiming
+    # "This beta site is a work in progress."
+    "BETA_NOTICE": {"environment is": "beta"},
+    # When enabled, include a recruitment code comment in the base template.
+    "CFPB_RECRUITING": {},
+    # When enabled, display a "technical issues" banner on /complaintdatabase.
+    "CCDB_TECHNICAL_ISSUES": {},
+    # When enabled, use Wagtail for /company-signup/ (instead of selfregistration app)
+    "WAGTAIL_COMPANY_SIGNUP": {},
+    # IA changes to mega menu for user testing
+    # When enabled, the mega menu under "Consumer Tools" is arranged by topic
+    "IA_USER_TESTING_MENU": {},
+    # Fix for margin-top when using the text inset
+    # When enabled, the top margin of full-width text insets is increased
+    "INSET_TEST": {},
+    # When enabled, serves `/es/` pages from this
+    # repo ( excluding /obtener-respuestas/ pages ).
+    "ES_CONV_FLAG": {},
+    # The next version of the public consumer complaint database
+    "CCDB5_RELEASE": {},
+    # To be enabled when mortgage-performance data visualizations go live
+    "MORTGAGE_PERFORMANCE_RELEASE": {},
+    # Google Optimize code snippets for A/B testing
+    # When enabled this flag will add various Google Optimize code snippets.
+    # Intended for use with path conditions.
+    "AB_TESTING": {},
+    # Email popups.
+    "EMAIL_POPUP_OAH": {"boolean": True},
+    "EMAIL_POPUP_DEBT": {"boolean": True},
+    # Wagtail menu
+    "WAGTAIL_MENU": {},
+    # The release of new Whistleblowers content/pages
+    "WHISTLEBLOWER_RELEASE": {},
+    # Search.gov API-based site-search
+    "SEARCH_DOTGOV_API": {},
+    # The release of the new Financial Coaching pages
+    "FINANCIAL_COACHING": {},
+    # Teacher's Digital Platform Customer Review Tool
+    "TDP_CRTOOL": {"environment is": "beta"},
+    # Teacher's Digital Platform Customer Review Tool Prototypes Pages
+    "TDP_CRTOOL_PROTOTYPES": {"environment is": "beta"},
+    # Teacher's Digital Platform Search Interface Tool
+    "TDP_SEARCH_INTERFACE": {"environment is": "beta"},
+    # Teacher's Digital Platform Building Blocks Tool
+    "TDP_BB_TOOL": {"environment is": "beta"},
+    # Turbolinks is a JS library that speeds up page loads
+    # https://github.com/turbolinks/turbolinks
+    "TURBOLINKS": {},
+    # Ping google on page publication in production only
+    "PING_GOOGLE_ON_PUBLISH": {"environment is": "production"},
+    # Feature flag to enable our replacement for eRegs and disable eRegs
+    "REGULATIONS3K": {},
+    "LEGACY_HUD_API": {"environment is": "production"},
+    # To be enabled when switching the site to use the BCFP logo
+    "BCFP_LOGO": {},
+}

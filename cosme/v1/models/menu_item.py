@@ -1,14 +1,14 @@
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 
-from wagtail.wagtailadmin.edit_handlers import (
+from wagtail.admin.edit_handlers import (
     FieldPanel,
     MultiFieldPanel,
     PageChooserPanel,
     StreamFieldPanel,
 )
-from wagtail.wagtailcore.fields import StreamField
-from wagtail.wagtailcore.rich_text import expand_db_html
+from wagtail.core.fields import StreamField
+from wagtail.core.rich_text import expand_db_html
 
 from bs4 import BeautifulSoup
 
@@ -33,6 +33,7 @@ class MenuItem(models.Model):
             "(leave blank if there is no overview page)."
         ),
         verbose_name="Overview page link",
+        on_delete=models.SET_NULL,
     )
 
     order = models.PositiveSmallIntegerField(
