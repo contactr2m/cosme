@@ -74,6 +74,7 @@ THIRD_PARTY_APPS = [
     "rest_framework",
     "flags",
     "wagtailflags",
+    "overextends",
 ]
 WAGTAIL_APPS = [
     "wagtail.contrib.forms",
@@ -131,9 +132,7 @@ PASSWORD_HASHERS = [
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#auth-password-validators
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
-    },
+    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
     {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
@@ -210,6 +209,7 @@ TEMPLATES = [
                 "django.template.context_processors.tz",
                 "django.contrib.messages.context_processors.messages",
             ],
+            "builtins": ["overextends.templatetags.overextends_tags"],
         },
     },
     {
@@ -264,7 +264,6 @@ ADMINS = [("""Rohit""", "rohit@example.com")]
 # https://docs.djangoproject.com/en/dev/ref/settings/#managers
 MANAGERS = ADMINS
 
-
 # django-allauth
 # ------------------------------------------------------------------------------
 ACCOUNT_ALLOW_REGISTRATION = env.bool("DJANGO_ACCOUNT_ALLOW_REGISTRATION", True)
@@ -290,7 +289,6 @@ STATICFILES_FINDERS += ["compressor.finders.CompressorFinder"]
 WAGTAIL_SITE_NAME = "COSME"
 WAGTAILIMAGES_IMAGE_MODEL = "v1.COSMEImage"
 TAGGIT_CASE_INSENSITIVE = True
-
 
 # We want the ability to serve the latest drafts of some pages on beta.
 # This value is read by v1.wagtail_hooks.
@@ -320,17 +318,6 @@ FLAGS = {
     "CCDB_TECHNICAL_ISSUES": {},
     # When enabled, use Wagtail for /company-signup/ (instead of selfregistration app)
     "WAGTAIL_COMPANY_SIGNUP": {},
-    # IA changes to mega menu for user testing
-    # When enabled, the mega menu under "Consumer Tools" is arranged by topic
-    "IA_USER_TESTING_MENU": {},
-    # Fix for margin-top when using the text inset
-    # When enabled, the top margin of full-width text insets is increased
-    "INSET_TEST": {},
-    # When enabled, serves `/es/` pages from this
-    # repo ( excluding /obtener-respuestas/ pages ).
-    "ES_CONV_FLAG": {},
-    # The next version of the public consumer complaint database
-    "CCDB5_RELEASE": {},
     # To be enabled when mortgage-performance data visualizations go live
     "MORTGAGE_PERFORMANCE_RELEASE": {},
     # Google Optimize code snippets for A/B testing
@@ -344,26 +331,10 @@ FLAGS = {
     "WAGTAIL_MENU": {},
     # The release of new Whistleblowers content/pages
     "WHISTLEBLOWER_RELEASE": {},
-    # Search.gov API-based site-search
-    "SEARCH_DOTGOV_API": {},
-    # The release of the new Financial Coaching pages
-    "FINANCIAL_COACHING": {},
-    # Teacher's Digital Platform Customer Review Tool
-    "TDP_CRTOOL": {"environment is": "beta"},
-    # Teacher's Digital Platform Customer Review Tool Prototypes Pages
-    "TDP_CRTOOL_PROTOTYPES": {"environment is": "beta"},
-    # Teacher's Digital Platform Search Interface Tool
-    "TDP_SEARCH_INTERFACE": {"environment is": "beta"},
-    # Teacher's Digital Platform Building Blocks Tool
-    "TDP_BB_TOOL": {"environment is": "beta"},
     # Turbolinks is a JS library that speeds up page loads
     # https://github.com/turbolinks/turbolinks
     "TURBOLINKS": {},
     # Ping google on page publication in production only
     "PING_GOOGLE_ON_PUBLISH": {"environment is": "production"},
-    # Feature flag to enable our replacement for eRegs and disable eRegs
-    "REGULATIONS3K": {},
-    "LEGACY_HUD_API": {"environment is": "production"},
-    # To be enabled when switching the site to use the BCFP logo
     "BCFP_LOGO": {},
 }
