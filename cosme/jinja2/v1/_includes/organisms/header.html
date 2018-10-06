@@ -80,7 +80,7 @@
                         {{ mega_menu(get_menu_items(request)) }}
                     {% endcache %}
                 {% else %}
-                    {% import '_vars-mega-menu.html' as vars with context %}
+                    {% import 'organisms/_vars-mega-menu.html' as vars with context %}
                     {{ mega_menu(vars.menu_items) }}
                 {% endif %}
 
