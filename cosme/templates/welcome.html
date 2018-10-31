@@ -1,4 +1,4 @@
-{% overextends "wagtailadmin/login.html" %}
+{% extends "wagtailadmin/login.html" %}
 {% load i18n admin_static %}
 
 {% block furniture %}
@@ -8,7 +8,7 @@
         {% if 'build' in request.site.hostname %}
             You've logged in to the demo Wagtail.    
         {% else %}
-            You've logged in to the consumerfinance.gov editorial tools.    
+            You've logged in to the cosme editorial tools.
         {% endif %}
         </h1>
 
@@ -32,7 +32,8 @@
                 </a>
             </li>
             <li>
-                CFPB-specific Wagtail documentation (please see link in CF.gov Platform team repo under "playground")
+                COSME-specific Wagtail documentation (please see link in cosme
+                Platform team repo under "playground")
             </li>
         </ul>
 

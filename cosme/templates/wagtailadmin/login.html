@@ -1,4 +1,4 @@
-{% overextends "wagtailadmin/login.html" %}
+{% extends "wagtailadmin/login.html" %}
 {% load staticfiles i18n %}
 
 {% block furniture %}
@@ -10,7 +10,7 @@
                         <li class="error">{{ error |safe }}</li>
                     {% endfor %}
                 </ul>
-            </div>
+            </div>cfpb_login
         {% endif %}
 
         {% block above_login %}

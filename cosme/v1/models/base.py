@@ -50,7 +50,7 @@ class BaseCOSMEPageManager(PageManager):
         return PageQuerySet(self.model).order_by('path')
 
 
-COSMEVPageManager = BaseCOSMEPageManager.from_queryset(PageQuerySet)
+COSMEPageManager = BaseCOSMEPageManager.from_queryset(PageQuerySet)
 
 
 class COSMEPage(Page):
@@ -82,7 +82,7 @@ class COSMEPage(Page):
     # This is used solely for subclassing pages we want to make at the CFPB.
     is_creatable = False
 
-    objects = COSMEVPageManager()
+    objects = COSMEPageManager()
 
     # These fields show up in either the sidebar or the footer of the page
     # depending on the page type.
@@ -442,7 +442,7 @@ class AbstractFilterPage(COSMEPage):
     # This page class cannot be created.
     is_creatable = False
 
-    objects = COSMEVPageManager()
+    objects = COSMEPageManager()
 
     @classmethod
     def generate_edit_handler(self, content_panel):
