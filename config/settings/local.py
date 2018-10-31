@@ -5,6 +5,7 @@ from .base import env
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#debug
 DEBUG = True
+ALLOW_ADMIN_URL = DEBUG or env.bool("ALLOW_ADMIN_URL", False)
 # https://docs.djangoproject.com/en/dev/ref/settings/#secret-key
 SECRET_KEY = env('DJANGO_SECRET_KEY', default='q6fvzuvhe9DOS9EpWlhGahCOdnEzH8mfUGLt0EC7LWwYSyDPHI59VRBfrI31qtcT')
 # https://docs.djangoproject.com/en/dev/ref/settings/#allowed-hosts
@@ -62,3 +63,20 @@ INSTALLED_APPS += ['django_extensions']  # noqa F405
 
 # Your stuff...
 # ------------------------------------------------------------------------------
+# Disable caching when working locally.
+CACHES.update({
+    k: {
+        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+        'TIMEOUT': 0,
+    } for k in (
+        'default', 'post_preview'
+    )
+})
+
+# Optionally enable cache for post_preview
+if os.environ.get('ENABLE_POST_PREVIEW_CACHE'):
+    CACHES['post_preview'] = {
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'post_preview_cache',
+        'TIMEOUT': None,
+    }

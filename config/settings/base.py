@@ -24,6 +24,7 @@ if READ_DOT_ENV_FILE:
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#debug
 DEBUG = env.bool("DJANGO_DEBUG", False)
+ALLOW_ADMIN_URL = env.bool("ALLOW_ADMIN_URL", False)
 # Local time zone. Choices are
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # though not all of them may be available with every OS.
@@ -115,9 +116,14 @@ AUTHENTICATION_BACKENDS = [
 # https://docs.djangoproject.com/en/dev/ref/settings/#auth-user-model
 AUTH_USER_MODEL = "users.User"
 # https://docs.djangoproject.com/en/dev/ref/settings/#login-redirect-url
-LOGIN_REDIRECT_URL = "users:redirect"
+# LOGIN_REDIRECT_URL = "users:redirect"
 # https://docs.djangoproject.com/en/dev/ref/settings/#login-url
-LOGIN_URL = "account_login"
+# LOGIN_URL = "account_login"
+LOGIN_FAIL_TIME_PERIOD = os.environ.get('LOGIN_FAIL_TIME_PERIOD', 120 * 60)
+# number of failed attempts
+LOGIN_FAILS_ALLOWED = os.environ.get('LOGIN_FAILS_ALLOWED', 5)
+LOGIN_REDIRECT_URL = '/login/welcome/'
+LOGIN_URL = "/login/"
 
 # PASSWORDS
 # ------------------------------------------------------------------------------
@@ -338,3 +344,20 @@ FLAGS = {
     "PING_GOOGLE_ON_PUBLISH": {"environment is": "production"},
     "BCFP_LOGO": {},
 }
+
+# Optionally enable cache for general template fragments
+if os.environ.get('ENABLE_DEFAULT_FRAGMENT_CACHE'):
+    CACHES = {
+        'default_fragment_cache': {
+            'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+            'LOCATION': 'default_fragment_cache',
+            'TIMEOUT': None,
+        }
+    }
+else:
+    CACHES = {
+        'default_fragment_cache': {
+            'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+            'TIMEOUT': 0,
+        }
+    }
