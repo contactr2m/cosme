@@ -75,7 +75,7 @@ THIRD_PARTY_APPS = [
     "rest_framework",
     "flags",
     "wagtailflags",
-    "overextends",
+    # "overextends",
 ]
 WAGTAIL_APPS = [
     "wagtail.contrib.forms",
@@ -96,6 +96,7 @@ LOCAL_APPS = [
     "cosme.users.apps.UsersAppConfig",
     "wagtailinventory",
     "cosme.v1",
+    "storages",
     # Your stuff: custom apps go here
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
@@ -119,10 +120,10 @@ AUTH_USER_MODEL = "users.User"
 # LOGIN_REDIRECT_URL = "users:redirect"
 # https://docs.djangoproject.com/en/dev/ref/settings/#login-url
 # LOGIN_URL = "account_login"
-LOGIN_FAIL_TIME_PERIOD = os.environ.get('LOGIN_FAIL_TIME_PERIOD', 120 * 60)
+LOGIN_FAIL_TIME_PERIOD = os.environ.get("LOGIN_FAIL_TIME_PERIOD", 120 * 60)
 # number of failed attempts
-LOGIN_FAILS_ALLOWED = os.environ.get('LOGIN_FAILS_ALLOWED', 5)
-LOGIN_REDIRECT_URL = '/login/welcome/'
+LOGIN_FAILS_ALLOWED = os.environ.get("LOGIN_FAILS_ALLOWED", 5)
+LOGIN_REDIRECT_URL = "/login/welcome/"
 LOGIN_URL = "/login/"
 
 # PASSWORDS
@@ -138,7 +139,9 @@ PASSWORD_HASHERS = [
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#auth-password-validators
 AUTH_PASSWORD_VALIDATORS = [
-    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
+    {
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
+    },
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
     {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
@@ -157,6 +160,8 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "wagtail.core.middleware.SiteMiddleware",
     "wagtail.contrib.redirects.middleware.RedirectMiddleware",
+    "cosme.v1.middleware.ParseLinksMiddleware",
+    "cosme.v1.middleware.DownstreamCacheControlMiddleware",
 ]
 
 # STATIC
@@ -215,7 +220,7 @@ TEMPLATES = [
                 "django.template.context_processors.tz",
                 "django.contrib.messages.context_processors.messages",
             ],
-            "builtins": ["overextends.templatetags.overextends_tags"],
+            # "builtins": ["overextends.templatetags.overextends_tags"],
         },
     },
     {
@@ -318,6 +323,7 @@ FLAGS = {
     # When enabled, a banner appears across the top of the site proclaiming
     # "This beta site is a work in progress."
     "BETA_NOTICE": {"environment is": "beta"},
+    # "BETA_NOTICE": {"boolean": False},
     # When enabled, include a recruitment code comment in the base template.
     "CFPB_RECRUITING": {},
     # When enabled, display a "technical issues" banner on /complaintdatabase.
@@ -345,19 +351,31 @@ FLAGS = {
     "BCFP_LOGO": {},
 }
 
+EMAIL_POPUP_URLS = {
+    "debt": [
+        "/ask-cfpb/what-is-a-statute-of-limitations-on-a-debt-en-1389/",
+        "/ask-cfpb/what-is-the-best-way-to-negotiate-a-settlement-with-a-debt-collector-en-1447/",
+        "/ask-cfpb/what-should-i-do-when-a-debt-collector-contacts-me-en-1695/",
+        "/consumer-tools/debt-collection/",
+    ],
+    "oah": ["/owning-a-home/", "/owning-a-home/mortgage-estimate/"],
+}
+
 # Optionally enable cache for general template fragments
-if os.environ.get('ENABLE_DEFAULT_FRAGMENT_CACHE'):
+if os.environ.get("ENABLE_DEFAULT_FRAGMENT_CACHE"):
     CACHES = {
-        'default_fragment_cache': {
-            'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
-            'LOCATION': 'default_fragment_cache',
-            'TIMEOUT': None,
+        "default_fragment_cache": {
+            "BACKEND": "django.core.cache.backends.db.DatabaseCache",
+            "LOCATION": "default_fragment_cache",
+            "TIMEOUT": None,
         }
     }
 else:
     CACHES = {
-        'default_fragment_cache': {
-            'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
-            'TIMEOUT': 0,
+        "default_fragment_cache": {
+            "BACKEND": "django.core.cache.backends.dummy.DummyCache",
+            "TIMEOUT": 0,
         }
     }
+
+# WAGTAIL_APPEND_SLASH = False
