@@ -1,4 +1,7 @@
 from time import time
+import re
+from six import text_type as str
+from six.moves.urllib.parse import parse_qs, urlencode, urlparse
 
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.urls import resolve
@@ -7,6 +10,21 @@ from django.urls import resolve
 from django.http import Http404, HttpResponseRedirect
 
 from wagtail.core.blocks.stream_block import StreamValue
+
+from bs4 import BeautifulSoup, NavigableString
+
+
+NON_GOV_LINKS = re.compile(
+    r"https?:\/\/(?:www\.)?(?![^\?]+gov)(?!(content\.)?localhost).*"
+)
+NON_CFPB_LINKS = re.compile(
+    r"(https?:\/\/(?:www\.)?(?![^\?]*(cfpb|consumerfinance).gov)"
+    r"(?!(content\.)?localhost).*)"
+)
+DOWNLOAD_LINKS = re.compile(r"(?i)(\.pdf|\.doc|\.docx|\.xls|\.xlsx|\.csv|\.zip)$")
+LINK_ICON_CLASSES = "a-link a-link__icon"
+
+LINK_ICON_TEXT_CLASSES = "a-link_text"
 
 
 def get_unique_id(prefix="", suffix=""):
@@ -214,3 +232,70 @@ def extended_strftime(dt, format):
     format = format.replace("%_d", dt.strftime("%d").lstrip("0"))
     format = format.replace("%_m", _MONTH_ABBREVIATIONS[dt.month])
     return dt.strftime(format)
+
+
+def is_image_tag(tag):
+    for child in tag.children:
+        if child.name in ["img", "svg"]:
+            return True
+    return False
+
+
+def get_link_tags(soup):
+    tags = []
+    for a in soup.find_all("a", href=True):
+        if not is_image_tag(a):
+            tags.append(a)
+    return tags
+
+
+def add_link_markup(tag):
+    # TODO: Fix this circular import.
+    from cosme.v1.jinja2tags.core_extension import signed_redirect, svg_icon
+
+    """Add necessary markup to the given link and return if modified.
+
+    Add an external link icon if the input is not a CFPB (internal) link.
+    Add an external link redirect if the input is not a gov link.
+    Add a download icon if the input is a file.
+    Otherwise (internal link that is not a file), return None.
+    """
+    icon = False
+
+    if not tag.attrs.get("class", None):
+        tag.attrs.update({"class": []})
+
+    if tag["href"].startswith("/external-site/?"):
+        # Sets the icon to indicate you're leaving consumerfinance.gov
+        icon = "external-link"
+        components = urlparse(tag["href"])
+        arguments = parse_qs(components.query)
+        if "ext_url" in arguments:
+            external_url = arguments["ext_url"][0]
+            # Add the redirect notice as well
+            tag["href"] = signed_redirect(external_url)
+
+    elif NON_CFPB_LINKS.match(tag["href"]):
+        # Sets the icon to indicate you're leaving consumerfinance.gov
+        icon = "external-link"
+        if NON_GOV_LINKS.match(tag["href"]):
+            # Add the redirect notice as well
+            tag["href"] = signed_redirect(tag["href"])
+
+    elif DOWNLOAD_LINKS.search(tag["href"]):
+        # Sets the icon to indicate you're downloading a file
+        icon = "download"
+
+    if icon:
+        tag.attrs["class"].append(LINK_ICON_CLASSES)
+        # Wraps the link text in a span that provides the underline
+        contents = tag.contents
+        span = BeautifulSoup("", "html.parser").new_tag("span")
+        span["class"] = LINK_ICON_TEXT_CLASSES
+        span.contents = contents
+        tag.contents = [span, NavigableString(" ")]
+        # Appends the SVG icon
+        tag.contents.append(BeautifulSoup(svg_icon(icon), "html.parser"))
+        return str(tag)
+
+    return None

@@ -13,7 +13,7 @@ V1_TEMPLATE_ROOT = APPS_DIR.path("jinja2/v1/")
 env = environ.Env()
 
 # Deploy environment
-DEPLOY_ENVIRONMENT = os.getenv("DEPLOY_ENVIRONMENT")
+DEPLOY_ENVIRONMENT = os.getenv("DEPLOY_ENVIRONMENT", "beta")
 
 READ_DOT_ENV_FILE = env.bool("DJANGO_READ_DOT_ENV_FILE", default=False)
 if READ_DOT_ENV_FILE:
@@ -162,6 +162,7 @@ MIDDLEWARE = [
     "wagtail.contrib.redirects.middleware.RedirectMiddleware",
     "cosme.v1.middleware.ParseLinksMiddleware",
     "cosme.v1.middleware.DownstreamCacheControlMiddleware",
+    "flags.middleware.FlagConditionsMiddleware",
 ]
 
 # STATIC
@@ -322,7 +323,7 @@ FLAGS = {
     # Beta banner, seen on beta.cosme.in
     # When enabled, a banner appears across the top of the site proclaiming
     # "This beta site is a work in progress."
-    "BETA_NOTICE": {"environment is": "beta"},
+    "BETA_NOTICE": {"environment_is": "beta"},
     # "BETA_NOTICE": {"boolean": False},
     # When enabled, include a recruitment code comment in the base template.
     "CFPB_RECRUITING": {},
@@ -347,7 +348,7 @@ FLAGS = {
     # https://github.com/turbolinks/turbolinks
     "TURBOLINKS": {},
     # Ping google on page publication in production only
-    "PING_GOOGLE_ON_PUBLISH": {"environment is": "production"},
+    "PING_GOOGLE_ON_PUBLISH": {"environment_is": "production"},
     "BCFP_LOGO": {},
 }
 
@@ -379,3 +380,6 @@ else:
     }
 
 # WAGTAIL_APPEND_SLASH = False
+
+PARSE_LINKS_BLACKLIST = ["/admin/", "/django-admin/"]
+

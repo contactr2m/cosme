@@ -3,14 +3,15 @@ from six import text_type as str
 from django.conf import settings
 from django.utils.encoding import force_text
 
-from wagtail.wagtailcore.rich_text import expand_db_html
+from wagtail.core.rich_text import expand_db_html
 
 from bs4 import BeautifulSoup
 
 from cosme.v1.util.util import add_link_markup, get_link_tags
+from django.utils.deprecation import MiddlewareMixin
 
 
-class DownstreamCacheControlMiddleware(object):
+class DownstreamCacheControlMiddleware(MiddlewareMixin):
     def process_response(self, request, response):
         if "CSRF_COOKIE_USED" in request.META:
             response["Edge-Control"] = "no-store"
@@ -56,7 +57,7 @@ def parse_links(html, encoding=None):
     return expanded_html
 
 
-class ParseLinksMiddleware(object):
+class ParseLinksMiddleware(MiddlewareMixin):
     def process_response(self, request, response):
         if should_parse_links(request.path, response["content-type"]):
             response.content = parse_links(response.content, encoding=response.charset)

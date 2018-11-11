@@ -10,5 +10,7 @@ class V1Config(AppConfig):
     verbose_name = "V1"
 
     def ready(self):
+        import cosme.v1.feature_flags
+
         user_model = get_user_model()
         post_save.connect(user_save_callback, sender=user_model)

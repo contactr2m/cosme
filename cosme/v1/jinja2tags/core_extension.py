@@ -1,6 +1,6 @@
-from flags.template_functions import flag_disabled, flag_enabled
+from flags.state import flag_disabled, flag_enabled
 from jinja2.ext import Extension
-from six.moves.urllib.parse import parse_qs, urlencode, urlparse
+from six.moves.urllib.parse import urlencode
 from django.core.signing import Signer
 from django.urls import reverse
 import re

@@ -9,7 +9,7 @@ from cosme.v1.util.ref import (
     related_posts_category_lookup,
 )
 
-from v1.util.util import (
+from cosme.v1.util.util import (
     ERROR_MESSAGES,
     all_valid_destinations_for_request,
     get_secondary_nav_items,
@@ -17,4 +17,6 @@ from v1.util.util import (
     get_unique_id,
     instanceOfBrowseOrFilterablePages,
     valid_destination_for_request,
+    add_link_markup,
+    get_link_tags,
 )

@@ -11,7 +11,7 @@ from cosme.v1.models import COSMERendition
 from cosme.v1.templatetags.email_popup import email_popup
 from cosme.v1.templatetags.mega_menu import get_menu_items
 from cosme.v1.util import ref
-from cosme.v1.util.util import get_unique_id
+from cosme.v1.util import get_unique_id
 
 
 def get_snippets(snippet_type):

@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.urls import include, path, re_path
+from django.conf.urls import url
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.views.generic import TemplateView, RedirectView
@@ -26,6 +27,10 @@ urlpatterns = [
     # ),
     re_path(
         r"^home/(?P<path>.*)$", RedirectView.as_view(url="/%(path)s", permanent=True)
+    ),
+    url(
+        r"^blog/(?P<path>.*)$",
+        RedirectView.as_view(url="/about-us/blog/%(path)s", permanent=True),
     ),
     # # Django Admin, use {% url 'admin:index' %}
     # path(settings.ADMIN_URL, admin.site.urls),
