@@ -21,3 +21,4 @@ from cosme.v1.models.snippets import (
     TaggableSnippetManager,
 )
 from cosme.v1.models.home_page import HomePage
+from cosme.v1.models.landing_page import LandingPage
