@@ -19,26 +19,24 @@ from cosme.v1.views import (
     CustomPasswordResetConfirmView,
 )
 from cosme.v1.forms import COSMEPasswordChangeForm
+from functools import partial
+from django.http import Http404, HttpResponse
+from django.shortcuts import render
+
 
 urlpatterns = [
-    # path("", TemplateView.as_view(template_name="pages/home.html"), name="home"),
-    # path(
-    #     "about/", TemplateView.as_view(template_name="pages/about.html"), name="about"
-    # ),
-    re_path(
+    url(
         r"^home/(?P<path>.*)$", RedirectView.as_view(url="/%(path)s", permanent=True)
     ),
     url(
         r"^blog/(?P<path>.*)$",
         RedirectView.as_view(url="/about-us/blog/%(path)s", permanent=True),
     ),
-    # # Django Admin, use {% url 'admin:index' %}
-    # path(settings.ADMIN_URL, admin.site.urls),
-    # User management
-    # path("users/", include("cosme.users.urls", namespace="users")),
-    # path("accounts/", include("allauth.urls")),
-    # Your stuff: custom urls includes go here
-    # re_path(r"^admin/", include(wagtailadmin_urls)),
+    url(r'^feed/$',
+        RedirectView.as_view(url='/about-us/blog/feed/', permanent=True)),
+    url(r'^feed/blog/$',
+        RedirectView.as_view(url='/about-us/blog/feed/', permanent=True)),
+
     re_path(r"^documents/", include(wagtaildocs_urls)),
     re_path(r"^pages/", include(wagtail_urls)),
     re_path(r"^external-site/$", ExternalURLNoticeView.as_view(), name="external-site"),
@@ -133,3 +131,21 @@ if settings.DEBUG:
         import debug_toolbar
 
         urlpatterns = [path("__debug__/", include(debug_toolbar.urls))] + urlpatterns
+
+urlpatterns.append(url(r'', include(wagtail_urls)))
+
+def handle_error(code, request, exception=None):
+    try:
+        return render(request, '%s.html' % code, context={'request': request},
+                      status=code)
+    except AttributeError:
+        # for certain URL's, it seems like our middleware doesn't run
+        # Thankfully, these are probably not errors real users see -- usually
+        # the results of a security scan, or a malformed static file reference.
+
+        return HttpResponse("This request could not be processed, "
+                            "HTTP Error %s." % str(code), status=code)
+
+
+handler404 = partial(handle_error, 404)
+handler500 = partial(handle_error, 500)
