@@ -39,7 +39,7 @@ django-csp==3.4
 django-flags
 django-storages==1.7.1
 django-treebeard
-Jinja2==2.7.3
+Jinja2==2.11.3
 jsonfield==2.0.2
 lxml==4.2.5
 Markdown==2.6.11
