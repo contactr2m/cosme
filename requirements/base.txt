@@ -41,7 +41,7 @@ django-storages==1.7.1
 django-treebeard
 Jinja2==2.7.3
 jsonfield==2.0.2
-lxml==4.2.5
+lxml==4.6.5
 Markdown==2.6.11
 markdown-emdash==0.1.0
 ntplib==0.3.3
